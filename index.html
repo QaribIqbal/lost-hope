@@ -532,6 +532,7 @@
     font-size:clamp(1.25rem,3vw,1.6rem);
     margin-bottom:1rem;
     color:#e5e9f0;
+    position:relative;
   }
   .stanza.steel .line{
     color:#cbd5f5;
@@ -539,6 +540,58 @@
   .stanza.duty .line,
   .stanza.ending .line{
     color:#e5e7eb;
+  }
+
+  /* bleeding text effect */
+
+  .line-bleeding{
+    color:#fca5a5;
+    text-shadow:
+      0 1px 0 #b91c1c,
+      0 2px 0 #7f1d1d,
+      0 3px 2px rgba(0,0,0,0.9);
+  }
+  .line-bleeding::before,
+  .line-bleeding::after{
+    content:"";
+    position:absolute;
+    left:44%;
+    transform:translateX(-50%);
+    width:8px;
+    height:8px;
+    background:#b91c1c;
+    border-radius:50%;
+    box-shadow:0 0 8px rgba(127,29,29,0.8);
+    opacity:0;
+    animation:drip 2.3s infinite;
+  }
+  .line-bleeding::before{
+    bottom:-4px;
+  }
+  .line-bleeding::after{
+    left:46%;
+    width:6px;
+    height:6px;
+    background:#7f1d1d;
+    animation:drip 2.7s infinite;
+  }
+
+  @keyframes drip{
+    0%{
+      transform:translateX(-50%) translateY(0);
+      opacity:0;
+    }
+    15%{
+      opacity:1;
+    }
+    70%{
+      transform:translateX(-50%) translateY(16px);
+      opacity:0.9;
+    }
+    100%{
+      transform:translateX(-50%) translateY(26px);
+      opacity:0;
+    }
   }
 
   .emphasis{
@@ -673,7 +726,7 @@
               <div class="line">I once let love bloom freely...</div>
               <div class="line">first in <span class="emphasis">innocence</span>,</div>
               <div class="line">then in one‑sided devotion,</div>
-              <div class="line">then in a fire I mistook for destiny.</div>
+              <div class="line line-bleeding">then in a fire I mistook for destiny.</div>
             </div>
 
             <div class="stanza fire" data-stanza="5">
