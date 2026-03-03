@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Armored Heart // Steel Tomb</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<style>
+  *{margin:0;padding:0;box-sizing:border-box;}
+
+  body{
+    font-family:"Georgia","Times New Roman",serif;
+    line-height:1.8;
+    min-height:100vh;
+    overflow-x:hidden;
+    background:#020510;
+    color:#e5e9f0;
+  }
+
+  .vignette{
+    position:fixed;
+    inset:0;
+    background:
+      radial-gradient(circle at center,transparent 35%,rgba(0,0,0,0.9) 100%),
+      radial-gradient(circle at 10% 0,rgba(15,23,42,0.7) 0,transparent 55%),
+      radial-gradient(circle at 90% 100%,rgba(15,23,42,0.9) 0,transparent 60%);
+    pointer-events:none;
+    z-index:50;
+    opacity:0;
+    transition:opacity 2s ease;
+  }
+  .vignette.active{opacity:1;}
+
+  .lock-screen{
+    position:fixed;
+    inset:0;
+    background:
+      radial-gradient(circle at 25% 10%,#141b33 0%,#050814 55%,#000 100%);
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    z-index:100;
+    transition:opacity 1.4s ease,transform 1.4s ease;
+  }
+  .lock-screen.fade-out{
+    opacity:0;
+    transform:scale(1.04);
+    pointer-events:none;
+  }
+
+  .lock-title{
+    font-size:clamp(2rem,7vw,3.6rem);
+    margin-bottom:0.6rem;
+    letter-spacing:0.25em;
+    text-align:center;
+    background:linear-gradient(135deg,#9ca3c7,#6b7280,#374151);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    text-shadow:0 0 26px rgba(148,163,199,0.7);
+    animation:titleGlow 5s ease-in-out infinite alternate;
+  }
+  .lock-author{
+    font-size:0.9rem;
+    letter-spacing:0.18em;
+    text-transform:uppercase;
+    color:rgba(156,163,175,0.95);
+    margin-bottom:2.2rem;
+  }
+  @keyframes titleGlow{
+    0%{text-shadow:0 0 12px rgba(148,163,199,0.55);filter:blur(0.7px);}
+    100%{text-shadow:0 0 32px rgba(191,219,254,0.95);filter:blur(0);}
+  }
+
+  .steel-plate{
+    position:relative;
+    width:170px;
+    height:170px;
+    border-radius:999px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    margin-bottom:2rem;
+  }
+  .steel-plate::before,
+  .steel-plate::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:inherit;
+    border:1px solid rgba(148,163,184,0.3);
+    box-shadow:
+      0 0 40px rgba(15,23,42,0.9),
+      0 0 70px rgba(15,23,42,1);
+  }
+  .steel-plate::before{
+    border-color:rgba(148,163,184,0.6);
+    opacity:0.8;
+    animation:pulseRing 4.2s ease-out infinite;
+  }
+  .steel-plate::after{
+    opacity:0.25;
+  }
+  @keyframes pulseRing{
+    0%{transform:scale(0.9);opacity:0.9;}
+    60%{transform:scale(1.15);opacity:0.2;}
+    100%{transform:scale(1.2);opacity:0;}
+  }
+
+  .lock-core{
+    position:relative;
+    width:78px;
+    height:78px;
+    border-radius:50%;
+    background:radial-gradient(circle at 30% 0,rgba(248,250,252,0.2),transparent 55%),
+               radial-gradient(circle at 70% 110%,rgba(15,23,42,0.9),rgba(3,7,18,1));
+    box-shadow:
+      0 0 18px rgba(15,23,42,0.9),
+      0 0 32px rgba(15,23,42,1);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .lock-core::before{
+    content:"";
+    position:absolute;
+    inset:-40%;
+    background:conic-gradient(from 220deg,
+      rgba(148,163,184,0.6),
+      transparent,
+      rgba(55,65,81,0.8),
+      transparent,
+      rgba(148,163,184,0.6)
+    );
+    mix-blend-mode:soft-light;
+    opacity:0.55;
+    animation:slowRotate 18s linear infinite;
+  }
+  .lock-icon{
+    position:relative;
+    width:30px;
+    height:30px;
+    color:#e5e9f0;
+  }
+  .lock-icon svg{
+    width:100%;
+    height:100%;
+  }
+  @keyframes slowRotate{
+    to{transform:rotate(360deg);}
+  }
+
+  .crack-effect{display:none;}
+
+  .password-container{
+    display:flex;
+    gap:1.2rem;
+    width:90%;
+    max-width:480px;
+  }
+  .password-input{
+    flex:1;
+    padding:1rem 1.4rem;
+    font-size:1.1rem;
+    border-radius:10px;
+    border:1px solid #111827;
+    background:linear-gradient(135deg,rgba(15,23,42,0.9),rgba(15,23,42,0.75));
+    color:#e5e9f0;
+    backdrop-filter:blur(12px);
+    transition:all .3s ease;
+  }
+  .password-input::placeholder{color:rgba(148,163,184,0.65);}
+  .password-input:focus{
+    outline:none;
+    border-color:#4b5563;
+    box-shadow:
+      0 0 22px rgba(15,23,42,0.9),
+      0 0 38px rgba(37,99,235,0.35);
+    transform:scale(1.02);
+  }
+
+  .password-btn{
+    padding:1rem 1.8rem;
+    font-size:1.05rem;
+    border-radius:10px;
+    border:1px solid #374151;
+    background:linear-gradient(145deg,#111827,#020617);
+    color:#e5e7eb;
+    cursor:pointer;
+    font-weight:600;
+    letter-spacing:0.08em;
+    position:relative;
+    overflow:hidden;
+    transition:all .3s ease;
+  }
+  .password-btn::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background:linear-gradient(120deg,transparent,rgba(148,163,184,0.4),transparent);
+    transform:translateX(-120%);
+    transition:transform .5s;
+  }
+  .password-btn:hover::before{transform:translateX(120%);}
+  .password-btn:hover{
+    background:linear-gradient(135deg,#1f2937,#020617);
+    border-color:#6b7280;
+    box-shadow:0 14px 32px rgba(15,23,42,0.9);
+    transform:translateY(-1px);
+  }
+  .password-btn:active{transform:translateY(0) scale(0.98);}
+
+  .error-msg{
+    margin-top:1.2rem;
+    font-size:.95rem;
+    color:#fecaca;
+    font-style:italic;
+    opacity:0;
+    transform:translateY(-10px);
+    transition:all .4s ease;
+  }
+  .error-msg.show{
+    opacity:1;
+    transform:translateY(0);
+  }
+
+  .shake{animation:shakeAdvanced .7s cubic-bezier(.36,.07,.19,.97);}
+  @keyframes shakeAdvanced{
+    0%,100%{transform:translateX(0) rotate(0);}
+    20%{transform:translateX(-8px) rotate(-.5deg);}
+    40%{transform:translateX(8px) rotate(.5deg);}
+    60%{transform:translateX(-5px) rotate(-.3deg);}
+    80%{transform:translateX(5px) rotate(.3deg);}
+  }
+
+  @media(max-width:640px){
+    .password-container{flex-direction:column;}
+  }
+
+  .bg-layers{
+    position:fixed;
+    inset:0;
+    z-index:-2;
+    overflow:hidden;
+  }
+  .bg-layer{
+    position:absolute;
+    width:200%;
+    height:200%;
+  }
+  .layer-1{
+    background:
+      radial-gradient(circle at 20% 80%,rgba(59,130,246,0.12) 0%,transparent 55%),
+      radial-gradient(circle at 80% 20%,rgba(15,23,42,0.6) 0%,transparent 55%);
+    animation:drift1 55s linear infinite;
+  }
+  .layer-2{
+    background:
+      radial-gradient(circle at 60% 40%,rgba(148,163,184,0.12) 0%,transparent 55%),
+      radial-gradient(circle at 10% 60%,rgba(15,23,42,0.8) 0%,transparent 55%);
+    animation:drift2 80s linear infinite;
+  }
+  @keyframes drift1{
+    0%{transform:translate(-50%,-50%) rotate(0);}
+    100%{transform:translate(-25%,-25%) rotate(360deg);}
+  }
+  @keyframes drift2{
+    0%{transform:translate(0,0) rotate(0);}
+    100%{transform:translate(18%,18%) rotate(-360deg);}
+  }
+
+  .particles{
+    position:absolute;
+    inset:0;
+    overflow:hidden;
+  }
+  .particle{
+    position:absolute;
+    border-radius:50%;
+    pointer-events:none;
+    animation:floatAdvanced linear infinite;
+  }
+  .particle.memory{
+    background:radial-gradient(circle,rgba(148,163,184,0.9) 0%,rgba(148,163,184,0.15) 70%,transparent);
+    box-shadow:0 0 20px rgba(148,163,184,0.4);
+  }
+  .particle.fire{
+    background:radial-gradient(circle,rgba(248,113,113,0.7) 0%,rgba(248,113,113,0.18) 70%,transparent);
+    box-shadow:0 0 22px rgba(248,113,113,0.45);
+  }
+  @keyframes floatAdvanced{
+    0%{
+      transform:translateY(110vh) translateX(0) scale(0.2);
+      opacity:0;
+    }
+    15%{
+      opacity:0.9;
+      transform:translateY(90vh) translateX(0) scale(1);
+    }
+    85%{
+      opacity:0.7;
+      transform:translateY(10vh) translateX(80px) scale(0.7);
+    }
+    100%{
+      transform:translateY(-10vh) translateX(140px) scale(0.1);
+      opacity:0;
+    }
+  }
+
+  #heartbeatCanvas{
+    position:fixed;
+    inset:0;
+    z-index:-3;
+    opacity:0;
+    transition:opacity 2s ease;
+  }
+  #heartbeatCanvas.active{
+    opacity:0.22;
+  }
+
+  .main-page{
+    opacity:0;
+    transform:translateY(40px) scale(0.96);
+    transition:all 1.6s ease;
+    padding:4rem 1.5rem 5rem;
+    position:relative;
+    display:flex;
+    justify-content:center;
+  }
+  .main-page.reveal{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+
+  .poem-shell{
+    max-width:980px;
+    width:100%;
+    margin:0 auto;
+    position:relative;
+  }
+
+  .poem-frame{
+    position:relative;
+    border-radius:26px;
+    padding:22px 22px 34px;
+    background:rgba(3,7,18,0.96);
+    backdrop-filter:blur(20px);
+    box-shadow:
+      0 0 0 1px rgba(15,23,42,0.9),
+      0 26px 70px rgba(0,0,0,0.95);
+    overflow:hidden;
+  }
+  .poem-frame::before{
+    content:"";
+    position:absolute;
+    inset:-2px;
+    border-radius:26px;
+    padding:1px;
+    background:linear-gradient(145deg,rgba(15,23,42,0.9),rgba(55,65,81,0.9),rgba(30,64,175,0.7));
+    -webkit-mask:
+      linear-gradient(#000 0 0) content-box,
+      linear-gradient(#000 0 0);
+    -webkit-mask-composite:xor;
+    mask-composite:exclude;
+    pointer-events:none;
+    opacity:1;
+  }
+
+  .poem-frame-header{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:12px;
+    margin-bottom:10px;
+    font-size:0.9rem;
+    color:#cbd5f5;
+  }
+
+  .poem-tag{
+    font-size:0.72rem;
+    letter-spacing:0.16em;
+    text-transform:uppercase;
+    color:rgba(148,163,199,0.9);
+  }
+  .poem-tag span{
+    display:inline-block;
+    width:8px;
+    height:8px;
+    border-radius:999px;
+    margin-right:6px;
+    background:#f97373;
+    box-shadow:0 0 16px rgba(248,113,113,0.9);
+  }
+
+  .poem-meta{
+    font-size:0.8rem;
+    text-align:right;
+    color:rgba(148,163,184,0.9);
+  }
+
+  .poem-title{
+    font-size:clamp(1.6rem,3.8vw,2.2rem);
+    letter-spacing:0.1em;
+    text-transform:uppercase;
+    text-align:center;
+    margin-top:10px;
+    margin-bottom:4px;
+    color:#e5e9f0;
+  }
+  .poem-sub{
+    text-align:center;
+    font-size:0.95rem;
+    color:rgba(156,163,175,0.95);
+    margin-bottom:8px;
+  }
+
+  .poem-bg-soft{
+    position:absolute;
+    inset:-20%;
+    background:
+      radial-gradient(circle at 20% 0,rgba(37,99,235,0.25) 0,transparent 55%),
+      radial-gradient(circle at 80% 100%,rgba(15,23,42,0.9) 0,transparent 55%),
+      radial-gradient(circle at 50% 60%,rgba(15,23,42,0.8) 0,transparent 65%);
+    mix-blend-mode:screen;
+    opacity:0.85;
+    filter:blur(14px);
+    pointer-events:none;
+    animation:driftSoft 38s ease-in-out infinite alternate;
+  }
+  @keyframes driftSoft{
+    0%{transform:translate(-12px,4px);}
+    100%{transform:translate(18px,-10px);}
+  }
+
+  .poem-vignette-inner{
+    position:absolute;
+    inset:0;
+    background:radial-gradient(circle at 50% 35%,transparent 0,transparent 52%,rgba(0,0,0,0.9) 85%);
+    pointer-events:none;
+  }
+
+  .poem-scroll{
+    position:relative;
+    max-height:75vh;
+    overflow-y:auto;
+    padding-right:6px;
+  }
+  .poem-scroll::-webkit-scrollbar{
+    width:6px;
+  }
+  .poem-scroll::-webkit-scrollbar-thumb{
+    background:linear-gradient(180deg,rgba(55,65,81,0.95),rgba(15,23,42,0.95));
+    border-radius:999px;
+  }
+
+  .poem-container{
+    max-width:900px;
+    margin:0 auto;
+    opacity:0;
+    transform:translateY(40px);
+    transition:all 1.1s ease;
+    position:relative;
+    z-index:1;
+  }
+
+  .stanza{
+    margin-bottom:3.2rem;
+    padding:2.1rem 1.8rem;
+    border-radius:20px;
+    position:relative;
+    backdrop-filter:blur(10px);
+    opacity:0;
+    transform:translateY(40px) scale(0.97);
+    transition:all 1.1s cubic-bezier(.34,1.56,.64,1);
+    overflow:hidden;
+  }
+  .stanza.animate{
+    opacity:1;
+    transform:translateY(0) scale(1);
+  }
+
+  .stanza.steel{
+    background:rgba(15,23,42,0.96);
+    border:1px solid rgba(75,85,99,0.9);
+    box-shadow:
+      inset 0 0 40px rgba(3,7,18,1),
+      0 18px 55px rgba(0,0,0,0.95);
+  }
+  .stanza.love-bloom{
+    background:linear-gradient(135deg,rgba(30,64,175,0.24),rgba(17,24,39,0.9));
+    border:1px solid rgba(129,140,248,0.7);
+    box-shadow:0 0 40px rgba(30,64,175,0.4),inset 0 0 35px rgba(15,23,42,0.9);
+  }
+  .stanza.fire{
+    background:linear-gradient(135deg,rgba(127,29,29,0.8),rgba(15,23,42,0.9));
+    border:1px solid rgba(248,113,113,0.6);
+    box-shadow:0 0 40px rgba(127,29,29,0.65);
+    animation:fireFlicker 2.6s infinite;
+  }
+  @keyframes fireFlicker{
+    0%,100%{filter:brightness(1);}
+    40%{filter:brightness(1.06);}
+    70%{filter:brightness(0.9);}
+  }
+  .stanza.duty{
+    background:rgba(15,23,42,0.98);
+    border:1px solid rgba(75,85,99,0.9);
+    filter:brightness(0.7) contrast(1.2);
+    transition:filter 2.2s ease,transform 1.1s ease,opacity 1.1s ease;
+  }
+  .stanza.duty.animate{
+    filter:brightness(0.82) contrast(1.1);
+  }
+  .stanza.ending{
+    background:radial-gradient(circle at 50% 0,rgba(248,250,252,0.06) 0,rgba(15,23,42,0.98) 55%);
+    border:2px solid rgba(148,163,184,0.9);
+    box-shadow:
+      0 0 52px rgba(15,23,42,0.95),
+      inset 0 0 40px rgba(15,23,42,1);
+    animation:endingHeartbeat 4s ease-in-out infinite;
+  }
+  @keyframes endingHeartbeat{
+    0%,100%{transform:translateY(0) scale(1);}
+    18%{transform:translateY(-2px) scale(1.02);}
+    32%{transform:translateY(0) scale(1);}
+    48%{transform:translateY(-1px) scale(1.01);}
+    70%{transform:translateY(0) scale(1);}
+  }
+
+  .line{
+    font-size:clamp(1.25rem,3vw,1.6rem);
+    margin-bottom:1rem;
+    color:#e5e9f0;
+  }
+  .stanza.steel .line{
+    color:#cbd5f5;
+  }
+  .stanza.duty .line,
+  .stanza.ending .line{
+    color:#e5e7eb;
+  }
+
+  .emphasis{
+    font-size:1.3em;
+    font-weight:600;
+    letter-spacing:0.07em;
+    background:linear-gradient(130deg,#9ca3af,#e5e7eb,#9ca3af);
+    -webkit-background-clip:text;
+    background-clip:text;
+    -webkit-text-fill-color:transparent;
+    text-shadow:0 0 16px rgba(148,163,184,0.9);
+  }
+
+  @media(max-width:768px){
+    .poem-frame{padding:20px 14px 26px;}
+    .stanza{padding:1.8rem 1.4rem;margin-bottom:2.4rem;}
+  }
+
+  .scroll-hint{
+    position:fixed;
+    bottom:2.5rem;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:.9rem;
+    font-style:italic;
+    letter-spacing:0.2em;
+    text-transform:uppercase;
+    color:rgba(156,163,175,0.9);
+    text-shadow:0 0 12px rgba(15,23,42,0.9);
+    animation:scrollBounce 2.3s infinite;
+    z-index:10;
+  }
+  @keyframes scrollBounce{
+    0%,100%{transform:translateX(-50%) translateY(0);opacity:.45;}
+    50%{transform:translateX(-50%) translateY(-10px);opacity:0.9;}
+  }
+</style>
+</head>
+<body>
+  <div class="vignette" id="vignette"></div>
+
+  <!-- LOCK SCREEN -->
+  <div class="lock-screen" id="lockScreen">
+    <h1 class="lock-title">STEEL TOMB</h1>
+    <div class="lock-author">By Qarib Iqbal</div>
+
+    <div class="steel-plate">
+      <div class="lock-core">
+        <div class="lock-icon">
+          <svg viewBox="0 0 24 24" fill="none">
+            <rect x="5" y="10" width="14" height="10" rx="2" stroke="#e5e9f0" stroke-width="1.4"/>
+            <path d="M9 10V7.5C9 5.57 10.57 4 12.5 4C14.43 4 16 5.57 16 7.5V10" stroke="#e5e9f0" stroke-width="1.4"/>
+            <circle cx="12" cy="14.5" r="1.6" fill="#e5e9f0"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <div class="password-container">
+      <input
+        type="password"
+        class="password-input"
+        id="passwordInput"
+        placeholder="Enter the lost key..."
+        autocomplete="off"
+      />
+      <button class="password-btn" id="passwordBtn">UNLOCK HEART</button>
+    </div>
+    <div class="error-msg" id="errorMsg">
+      The wound refuses to open for the wrong hands.
+    </div>
+  </div>
+
+  <!-- MAIN PAGE -->
+  <div class="main-page" id="mainPage">
+    <div class="bg-layers">
+      <div class="bg-layer layer-1"></div>
+      <div class="bg-layer layer-2"></div>
+      <div class="particles" id="particles"></div>
+    </div>
+
+    <canvas id="heartbeatCanvas"></canvas>
+
+    <div class="poem-shell">
+      <div class="poem-frame">
+        <div class="poem-bg-soft"></div>
+        <div class="poem-vignette-inner"></div>
+
+        <div class="poem-frame-header">
+          <div class="poem-tag"><span></span>PRIVATE LOG • HEART</div>
+          <div class="poem-meta">
+            By Qarib Iqbal
+          </div>
+        </div>
+
+        <div class="poem-title">How I outlived my own heart.</div>
+        <div class="poem-sub">
+          A single page about locking, burning, losing, and still moving.
+        </div>
+
+        <div style="text-align:center;font-size:0.85rem;color:rgba(148,163,184,0.9);max-width:620px;margin:0.4rem auto 1.4rem;line-height:1.6;">
+          I am not a poet, and I never planned to become one... this only exists because someone once talked to me and said,
+          <span style="font-style:italic;color:#e5e9f0;">“you’re good with words.”</span>
+          That sentence is the reason this entire poem was written.
+        </div>
+
+        <div class="poem-scroll">
+          <div class="poem-container" id="poemContainer">
+            <div class="stanza steel" data-stanza="1">
+              <div class="line">"I locked my heart inside a <span class="emphasis">steel tomb</span>...</div>
+              <div class="line">not to bury it,</div>
+              <div class="line">but to stop the <span class="emphasis">bleeding</span>.</div>
+              <div class="line">So the hollow shell of me</div>
+              <div class="line">could somehow stay upright.</div>
+            </div>
+
+            <div class="stanza steel" data-stanza="2">
+              <div class="line">I clothed myself in <span class="emphasis">armor</span>...</div>
+              <div class="line"><span class="emphasis">coldness stitched with numbness</span>...</div>
+              <div class="line">so no one could see</div>
+              <div class="line">how little of me was left inside.</div>
+            </div>
+
+            <div class="stanza steel" data-stanza="3">
+              <div class="line">Not because I feared people.</div>
+              <div class="line">Not because I feared pain.</div>
+              <div class="line">But because <span class="emphasis">survival</span>,</div>
+              <div class="line">sometimes, demands silence.</div>
+            </div>
+
+            <div class="stanza love-bloom" data-stanza="4">
+              <div class="line">I once let love bloom freely...</div>
+              <div class="line">first in <span class="emphasis">innocence</span>,</div>
+              <div class="line">then in one‑sided devotion,</div>
+              <div class="line">then in a fire I mistook for destiny.</div>
+            </div>
+
+            <div class="stanza fire" data-stanza="5">
+              <div class="line">I learned to turn love into <span class="emphasis">anger</span>,</div>
+              <div class="line">just to protect my pride.</div>
+              <div class="line">I convinced myself it worked.</div>
+              <div class="line">And for a long time,</div>
+              <div class="line">no one felt worthy</div>
+              <div class="line">of what I no longer allowed myself to feel.</div>
+            </div>
+
+            <div class="stanza love-bloom" data-stanza="6">
+              <div class="line">Then love found me again...</div>
+              <div class="line"><span class="emphasis">real, mutual, alive</span>.</div>
+              <div class="line">And just when my guarded heart</div>
+              <div class="line">began to thaw,</div>
+            </div>
+
+            <div class="stanza duty" data-stanza="7">
+              <div class="line"><span class="emphasis">duty tightened its grip</span>,</div>
+              <div class="line">and I had to let her go.</div>
+              <div class="line">Something didn’t just break...</div>
+              <div class="line">it <span class="emphasis">hardened</span>.</div>
+            </div>
+
+            <div class="stanza ending" data-stanza="8">
+              <div class="line">Now I do not fear love.</div>
+              <div class="line">I simply do not trust</div>
+              <div class="line">that I am allowed to keep it.</div>
+              <div class="line">And so I remain...</div>
+              <div class="line"><span class="emphasis">armored, breathing</span>,</div>
+              <div class="line">moving forward.</div>
+              <div class="line"><span class="emphasis">Relentless.</span></div>
+              <div class="line">But not untouched."</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="scroll-hint">↓ Let it unfold ↓</div>
+  </div>
+
+  <script>
+    const correctPassword = "lost hope";
+    const lockScreen = document.getElementById("lockScreen");
+    const mainPage = document.getElementById("mainPage");
+    const passwordInput = document.getElementById("passwordInput");
+    const passwordBtn = document.getElementById("passwordBtn");
+    const errorMsg = document.getElementById("errorMsg");
+    const passwordContainer = document.querySelector(".password-container");
+    const vignette = document.getElementById("vignette");
+
+    passwordBtn.addEventListener("click", handlePassword);
+    passwordInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") handlePassword();
+    });
+
+    function handlePassword() {
+      const value = passwordInput.value.trim().toLowerCase();
+      if (value === correctPassword) {
+        unlock();
+      } else {
+        passwordContainer.classList.add("shake");
+        errorMsg.classList.add("show");
+        setTimeout(() => {
+          passwordContainer.classList.remove("shake");
+          errorMsg.classList.remove("show");
+        }, 700);
+      }
+    }
+
+    let hbCanvas, hbCtx, hbHearts = [];
+    function initHeartbeat() {
+      hbCanvas = document.getElementById("heartbeatCanvas");
+      hbCtx = hbCanvas.getContext("2d");
+
+      function resize() {
+        hbCanvas.width = window.innerWidth;
+        hbCanvas.height = window.innerHeight;
+      }
+      resize();
+      window.addEventListener("resize", resize);
+
+      function loop() {
+        hbCtx.clearRect(0, 0, hbCanvas.width, hbCanvas.height);
+
+        if (Math.random() < 0.08) {
+          hbHearts.push({
+            x: Math.random() * hbCanvas.width,
+            y: hbCanvas.height + 40,
+            size: Math.random() * 14 + 8,
+            speed: Math.random() * 1.5 + 0.8,
+            opacity: Math.random() * 0.4 + 0.2
+          });
+        }
+
+        hbHearts.forEach((h, idx) => {
+          hbCtx.save();
+          hbCtx.translate(h.x, h.y);
+          hbCtx.scale(h.size / 20, h.size / 20);
+          hbCtx.beginPath();
+          hbCtx.moveTo(0, -5);
+          hbCtx.bezierCurveTo(-6, -12, -18, -10, -18, 2);
+          hbCtx.bezierCurveTo(-18, 12, -8, 20, 0, 24);
+          hbCtx.bezierCurveTo(8, 20, 18, 12, 18, 2);
+          hbCtx.bezierCurveTo(18, -10, 6, -12, 0, -5);
+          hbCtx.closePath();
+          hbCtx.fillStyle = "rgba(251,191,36," + h.opacity + ")";
+          hbCtx.shadowColor = "rgba(251,191,36,0.9)";
+          hbCtx.shadowBlur = 18;
+          hbCtx.fill();
+          hbCtx.restore();
+
+          h.y -= h.speed;
+          h.opacity *= 0.993;
+          if (h.y < -30 || h.opacity < 0.02) {
+            hbHearts.splice(idx, 1);
+          }
+        });
+
+        requestAnimationFrame(loop);
+      }
+      loop();
+    }
+
+    function createParticles() {
+      const container = document.getElementById("particles");
+      const types = ["memory", "fire"];
+      for (let i = 0; i < 40; i++) {
+        const div = document.createElement("div");
+        div.className = "particle " + types[Math.floor(Math.random() * types.length)];
+        div.style.left = Math.random() * 100 + "%";
+        const size = Math.random() * 7 + 3;
+        div.style.width = size + "px";
+        div.style.height = size + "px";
+        div.style.animationDuration = (Math.random() * 18 + 24) + "s";
+        div.style.animationDelay = Math.random() * 10 + "s";
+        container.appendChild(div);
+      }
+    }
+
+    function initStanzaAnimations() {
+      const poemContainer = document.getElementById("poemContainer");
+      const stanzas = document.querySelectorAll(".stanza");
+
+      setTimeout(() => {
+        poemContainer.style.opacity = "1";
+        poemContainer.style.transform = "translateY(0)";
+      }, 600);
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("animate");
+              if (entry.target.classList.contains("ending")) {
+                document.getElementById("heartbeatCanvas").classList.add("active");
+              }
+            }
+          });
+        },
+        {
+          threshold: 0.18,
+          rootMargin: "0px 0px -15% 0px"
+        }
+      );
+
+      stanzas.forEach((s) => observer.observe(s));
+
+      window.addEventListener("scroll", () => {
+        const max = document.body.scrollHeight - window.innerHeight;
+        const pct = max > 0 ? window.scrollY / max : 0;
+        vignette.style.opacity = Math.min(0.85, pct * 1.2);
+      });
+    }
+
+    function unlock() {
+      vignette.classList.add("active");
+      lockScreen.classList.add("fade-out");
+      setTimeout(() => {
+        mainPage.classList.add("reveal");
+        createParticles();
+        initHeartbeat();
+        initStanzaAnimations();
+      }, 1200);
+    }
+
+    window.addEventListener("load", () => {
+      passwordInput.focus();
+    });
+  </script>
+</body>
+</html>
