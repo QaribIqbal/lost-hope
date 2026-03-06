@@ -370,12 +370,10 @@
     opacity:1;
   }
 
-  /* steel tablet keeps original feel */
   .poem-frame.steel-tablet{
     background:rgba(3,7,18,0.96);
   }
 
-  /* wooden tablet base + depth */
   .poem-frame.wood-tablet{
     position:relative;
     overflow:hidden;
@@ -385,7 +383,6 @@
       0 30px 80px rgba(0,0,0,0.95);
   }
 
-  /* animated wood grain using repeating-linear-gradient [web:18][web:25] */
   .wood-tablet .wood-grain{
     position:absolute;
     inset:-40%;
@@ -571,7 +568,6 @@
     70%{transform:translateY(0) scale(1);}
   }
 
-  /* wooden stanzas */
   .stanza.wood{
     background:linear-gradient(135deg,rgba(76,46,27,0.96),rgba(38,24,15,0.98));
     border:1px solid rgba(248,187,132,0.65);
@@ -580,7 +576,6 @@
       0 18px 40px rgba(0,0,0,0.9);
   }
 
-  /* puppet-highlight stanzas */
   .stanza.puppet{
     background:radial-gradient(circle at 15% 0,rgba(251,191,36,0.2) 0,transparent 55%),
                linear-gradient(135deg,rgba(88,55,30,0.98),rgba(30,18,10,0.98));
@@ -588,6 +583,93 @@
     box-shadow:
       0 0 40px rgba(250,204,21,0.25),
       inset 0 0 24px rgba(15,10,6,0.95);
+  }
+
+  /* GLASS / WORLD TABLET */
+  .poem-frame.glass-tablet{
+    background:radial-gradient(circle at 20% 0,rgba(56,189,248,0.25) 0,rgba(15,23,42,0.98) 55%);
+    box-shadow:
+      0 0 0 1px rgba(15,23,42,0.9),
+      0 30px 90px rgba(0,0,0,0.98);
+  }
+  .glass-tablet::before{
+    background:linear-gradient(145deg,rgba(56,189,248,0.8),rgba(129,140,248,0.8),rgba(15,23,42,0.9));
+    opacity:0.9;
+  }
+
+  .world-header{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    margin:0.8rem 0 2.2rem;
+    position:relative;
+  }
+  .world-orbit{
+    width:130px;
+    height:130px;
+    border-radius:50%;
+    border:1px solid rgba(148,163,184,0.5);
+    box-shadow:0 0 22px rgba(59,130,246,0.4);
+    position:relative;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    overflow:hidden;
+  }
+  .world-orbit::before{
+    content:"";
+    position:absolute;
+    inset:10%;
+    border-radius:50%;
+    background:radial-gradient(circle at 30% 20%,rgba(248,250,252,0.3) 0,transparent 55%),
+               radial-gradient(circle at 70% 80%,rgba(15,23,42,0.9) 0,transparent 65%);
+    opacity:0.9;
+  }
+  .world-core{
+    position:relative;
+    width:60px;
+    height:60px;
+    border-radius:50%;
+    background:radial-gradient(circle at 30% 20%,#6ee7b7 0,#22c55e 30%,#0f172a 90%);
+    box-shadow:
+      0 0 20px rgba(34,197,94,0.8),
+      0 0 40px rgba(59,130,246,0.7);
+    animation:worldPulse 5s ease-in-out infinite;
+  }
+  @keyframes worldPulse{
+    0%,100%{transform:scale(1);}
+    40%{transform:scale(1.05);}
+  }
+
+  .glass-shards{
+    position:absolute;
+    inset:0;
+    pointer-events:none;
+    overflow:hidden;
+    z-index:0;
+  }
+  .glass-shard{
+    position:absolute;
+    width:70px;
+    height:40px;
+    background:linear-gradient(135deg,rgba(191,219,254,0.4),rgba(15,23,42,0.9));
+    clip-path:polygon(0 0,100% 10%,80% 100%,10% 80%);
+    opacity:0;
+    mix-blend-mode:screen;
+    animation:shardFloat 12s ease-in-out infinite;
+  }
+  .glass-shard:nth-child(1){top:6%;left:8%;animation-delay:0s;}
+  .glass-shard:nth-child(2){top:18%;right:4%;transform:rotate(14deg);animation-delay:2s;}
+  .glass-shard:nth-child(3){bottom:18%;left:14%;transform:rotate(-18deg);animation-delay:4s;}
+  .glass-shard:nth-child(4){bottom:4%;right:12%;transform:rotate(22deg);animation-delay:6s;}
+  .glass-shard:nth-child(5){top:40%;left:45%;transform:rotate(-8deg);animation-delay:8s;}
+
+  @keyframes shardFloat{
+    0%{transform:translateY(20px) scale(0.9);opacity:0;}
+    15%{opacity:0.85;}
+    50%{transform:translateY(-10px) scale(1);opacity:0.7;}
+    85%{opacity:0.2;transform:translateY(-30px) scale(0.95);}
+    100%{opacity:0;}
   }
 
   .line{
@@ -689,7 +771,6 @@
     50%{transform:translateX(-50%) translateY(-10px);opacity:0.9;}
   }
 
-  /* puppet header art */
   .puppet-header{
     display:flex;
     flex-direction:column;
@@ -818,7 +899,7 @@
 
     <div class="poem-shell">
 
-      <!-- TABLET 1: STEEL TOMB (original poem) -->
+      <!-- TABLET 1: STEEL TOMB -->
       <div class="poem-frame steel-tablet">
         <div class="poem-bg-soft"></div>
         <div class="poem-vignette-inner"></div>
@@ -1000,6 +1081,82 @@
         </div>
       </div>
 
+      <!-- TABLET 3: GLASS WORLD / LOSING SOMEONE -->
+      <div class="poem-frame glass-tablet">
+        <div class="poem-vignette-inner"></div>
+        <div class="glass-shards">
+          <div class="glass-shard"></div>
+          <div class="glass-shard"></div>
+          <div class="glass-shard"></div>
+          <div class="glass-shard"></div>
+          <div class="glass-shard"></div>
+        </div>
+
+        <div class="poem-frame-header">
+          <div class="poem-tag"><span></span>PRIVATE LOG • WORLD</div>
+          <div class="poem-meta">
+            By Qarib Iqbal
+          </div>
+        </div>
+
+        <div class="poem-title">Losing a Whole World</div>
+        <div class="poem-sub">
+          A page for the person who once felt like your entire universe.
+        </div>
+
+        <div style="text-align:center;font-size:0.85rem;color:rgba(148,163,184,0.9);max-width:620px;margin:0.4rem auto 1.4rem;line-height:1.6;">
+          Some people are not just memories, they are continents inside you.
+          Even when they leave, fault lines of them keep shifting beneath your chest.
+        </div>
+
+        <div class="world-header">
+          <div class="world-orbit">
+            <div class="world-core"></div>
+          </div>
+        </div>
+
+        <div class="poem-scroll">
+          <div class="poem-container">
+            <div class="stanza steel" data-stanza="w1">
+              <div class="line">Some people are like a <span class="emphasis">world</span> to you... </div>
+              <div class="line">they open quiet doors inside your soul,</div>
+              <div class="line">show you corners of your heart</div>
+              <div class="line">you never dared to explore before.</div>
+            </div>
+
+            <div class="stanza steel" data-stanza="w2">
+              <div class="line">It doesn’t matter how far you drift,</div>
+              <div class="line">their reflection still glimmers faintly,</div>
+              <div class="line">caught in the cracks</div>
+              <div class="line">of your shattered glass heart.</div>
+            </div>
+
+            <div class="stanza fire" data-stanza="w3">
+              <div class="line">Losing them feels like losing the world,</div>
+              <div class="line">a silence too loud, a pain that hums.</div>
+              <div class="line">Yet within that ache</div>
+              <div class="line">lie lessons written in invisible ink... </div>
+              <div class="line">truths you could’ve learned no other way.</div>
+            </div>
+
+            <div class="stanza duty" data-stanza="w4">
+              <div class="line">You try to forget,</div>
+              <div class="line">to bury them beneath busyness and days,</div>
+              <div class="line">but deep inside, there stays a hollow space,</div>
+              <div class="line">vast and echoing, once filled</div>
+              <div class="line">with their light, their laughter, their grace.</div>
+            </div>
+
+            <div class="stanza ending" data-stanza="w5">
+              <div class="line">For losing them</div>
+              <div class="line">is not just loss... it’s remembrance.</div>
+              <div class="line">A world gone, yet somehow,</div>
+              <div class="line">still orbiting within you."</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <div class="scroll-hint">↓ Let it unfold ↓</div>
@@ -1105,17 +1262,14 @@
     }
 
     function initStanzaAnimations() {
-      const poemContainer = document.getElementById("poemContainer");
+      const allContainers = document.querySelectorAll(".poem-container");
       const stanzas = document.querySelectorAll(".stanza");
 
       setTimeout(() => {
-        poemContainer.style.opacity = "1";
-        poemContainer.style.transform = "translateY(0)";
-        const puppetContainer = document.querySelector(".puppet-container");
-        if (puppetContainer) {
-          puppetContainer.style.opacity = "1";
-          puppetContainer.style.transform = "translateY(0)";
-        }
+        allContainers.forEach((c) => {
+          c.style.opacity = "1";
+          c.style.transform = "translateY(0)";
+        });
       }, 600);
 
       const observer = new IntersectionObserver(
